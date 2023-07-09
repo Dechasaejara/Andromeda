@@ -1,0 +1,51 @@
+# SETUP PROJECT
+    # Create solution
+    dotnet new sln -o slnName
+    dotnet new webapi -n Gursha.Api
+    dotnet new classlib -n Gursha.Domain
+
+    # Add reference 
+    dotnet sln add  **/*.csproj && dotnet build
+    dotnet add Gursha.Api reference Gursha.Application
+    
+    # Clear Project
+    rm  **/Class1.cs
+
+    # Add package dependency
+    // Entity
+    dotnet add package Microsoft.EntityFrameworkCore 
+    dotnet add package Microsoft.EntityFrameworkCore.Design 
+    dotnet add package Microsoft.EntityFrameworkCore.Tools 
+    // Db
+    dotnet add package Microsoft.EntityFrameworkCore.InMemory
+    dotnet add package Microsoft.EntityFrameworkCore.Sqlite
+    dotnet add package Microsoft.EntityFrameworkCore.SqlServer 
+    //
+    dotnet add package Microsoft.AspNetCore.Identity.EntityFrameworkCore 
+
+# SETUP Entity
+    - Configure AppSetting
+    "ConnectionStrings": {
+        "AppSqliteDBContext": "DataSource=app.db;Cache=Shared"
+    }
+    
+    - Inject to Program
+    builder.Services.AddDbContext<MyAppDbContex>(options => options.UseSqlite(builder.Configuration.GetConnectionString("AppSqliteDBContext")));
+
+    - Add DB AddDbContext
+    public class MyAppDbContex : DbContext // IdentityDbContext
+    {
+        public MsaDBContext(DbContextOptions<MyAppDbContex> options) : base(options)
+        {
+            //  Parameter values pass when instance of Db context created through DI
+        }
+        // DB Tables
+        public virtual DbSet<User> Users { get; set; }
+        public DbSet<Customer> Customers { get; set; }
+        public DbSet<FoodItem> FoodItems { get; set; }
+    }
+
+- Entity framework CLI
+     - dotnet ef Migrations Add InitialMigration  // add schema
+     - dotnet ef database update // update database
+
